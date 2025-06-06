@@ -1,0 +1,56 @@
+---
+# Configuration for the CA ClusterIssuer
+ca-clusterissuer:
+  # Enable or disable the CA ClusterIssuer
+  # Set to true to deploy the CA ClusterIssuer in your Kubernetes cluster.
+  enabled: true
+  manifests:
+    # Enable or disable the ClusterIssuer manifest
+    # Set to true to include the ClusterIssuer manifest in the deployment.
+    clusterissuer: false
+    # Enable or disable the CA secret manifest
+    # Set to true to include the CA secret manifest in the deployment.
+    secret_ca: false
+    # Enable or disable the self-signed manifest
+    # Set to true to include the self-signed manifest in the deployment.
+    selfsigned: true
+
+# Configuration for the CA Issuer
+ca-issuer:
+  # Enable or disable the CA Issuer
+  # Set to true to deploy the CA Issuer in your Kubernetes cluster.
+  enabled: false
+  manifests:
+    # Enable or disable the Issuer manifest
+    # Set to true to include the Issuer manifest in the deployment.
+    issuer: false
+    # Enable or disable the CA secret manifest
+    # Set to true to include the CA secret manifest in the deployment.
+    secret_ca: false
+    # Enable or disable the self-signed manifest
+    # Set to true to include the self-signed manifest in the deployment.
+    selfsigned: true
+
+# Configuration for cert-manager
+cert-manager:
+  # Enable or disable cert-manager
+  # Set to true to deploy cert-manager in your Kubernetes cluster.
+  enabled: true
+  # Enable or disable the Certificate Owner Reference feature
+  # Set to true to enable automatic garbage collection of certificates.
+  enableCertificateOwnerRef: true
+  crds:
+    # Enable or disable the installation of Custom Resource Definitions (CRDs)
+    # Set to true to install CRDs required by cert-manager.
+    enabled: true
+  # Uncomment and configure the following section to customize cert-manager behavior.
+  # config:
+  #   apiVersion: controller.config.cert-manager.io/v1alpha1
+  #   kind: ControllerConfiguration
+  #   enableGatewayAPI: true  # Enable or disable Gateway API support.
+
+# Configuration for trust-manager
+trust-manager:
+  # Enable or disable trust-manager
+  # Set to true to deploy trust-manager in your Kubernetes cluster.
+  enabled: false
