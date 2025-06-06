@@ -1,0 +1,30 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-remote
+  namespace: default
+spec:
+  template: remote-cluster-0-0-1
+  credential: remote-cluster-cred
+  propagateCredentials: false
+  config:
+    k0smotron:
+      service:
+        type: LoadBalancer
+    machines:
+      - address: 10.211.55.3
+        user: root # The user must have root permissions
+        port: 22
+  serviceSpec:
+    services:
+      - template: cni-1-0-0
+        name: cni
+        namespace: kube-system
+        values: |
+          pool:
+            enabled: true
+            allowFirstLastIPs: No
+            cidr: 172.16.252.0/24
+          operator:
+            replicas: 1

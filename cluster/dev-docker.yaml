@@ -1,0 +1,26 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-docker
+  namespace: default
+  labels:
+    app.kubernetes.io/cni: cilium
+    app.kubernetes.io/csi: openebs
+spec:
+  dryRun: false
+  template: docker-hosted-cp-1-0-0
+  credential: docker-cluster-cred
+  propagateCredentials: false
+  serviceSpec:
+    services:
+      - template: cni-1-0-0
+        name: cni
+        namespace: kube-system
+        values: |
+          pool:
+            enabled: true
+            allowFirstLastIPs: No
+            cidr: 172.16.254.0/24
+          operator:
+            replicas: 1

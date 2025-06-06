@@ -1,0 +1,22 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-openstack
+  namespace: default
+spec:
+  template: openstack-cluster-0-0-1
+  credential: openstack-cluster-cred
+  propagateCredentials: false
+  serviceSpec:
+    services:
+      - template: cni-1-0-0
+        name: cni
+        namespace: kube-system
+        values: |
+          pool:
+            enabled: true
+            allowFirstLastIPs: No
+            cidr: 172.16.253.0/24
+          operator:
+            replicas: 1
