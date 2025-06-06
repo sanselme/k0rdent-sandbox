@@ -1,0 +1,27 @@
+---
+apiVersion: v2
+name: csi
+type: application
+description: A Helm chart that deploys various CSI drivers and their dependencies.
+version: 1.0.0
+dependencies:
+  - name: openebs
+    repository: https://openebs.github.io/openebs
+    description: A Helm chart that references official "openebs" Helm chart.
+    version: 4.2.0
+    condition: openebs.enabled
+  - name: openstack-cinder-csi
+    repository: https://kubernetes.github.io/cloud-provider-openstack
+    description: A Helm chart that references official "openstack-cinder-csi" Helm chart.
+    version: 2.32.0
+    condition: openstack-cinder-csi.enabled
+  - name: rook-ceph
+    repository: https://charts.rook.io/release
+    description: A Helm chart that references official "rook-ceph" Helm chart.
+    version: v1.17.3
+    condition: rook-ceph.enabled
+  - name: rook-ceph-cluster
+    repository: https://charts.rook.io/release
+    description: A Helm chart that references official "rook-ceph-cluster" Helm chart.
+    version: v1.17.3
+    condition: rook-ceph-cluster.enabled

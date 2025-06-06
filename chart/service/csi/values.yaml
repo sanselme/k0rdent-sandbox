@@ -1,0 +1,248 @@
+---
+# Configuration for OpenEBS storage solutions
+openebs:
+  # Enable or disable OpenEBS
+  # Set to true to deploy OpenEBS in your Kubernetes cluster.
+  enabled: true
+
+  # Configuration for OpenEBS CRDs (Custom Resource Definitions)
+  openebs-crds:
+    csi:
+      # Enable or disable CSI volume snapshots
+      # Set to true to enable volume snapshot functionality for CSI.
+      volumeSnapshots:
+        enabled: false
+        # Keep or delete volume snapshot CRDs during uninstallation
+        # Set to true to retain CRDs or false to delete them.
+        keep: false
+
+  # Configuration for ZFS LocalPV
+  zfs-localpv:
+    crds:
+      zfsLocalPv:
+        # Enable or disable ZFS LocalPV CRDs
+        # Set to true to enable ZFS LocalPV functionality.
+        enabled: true
+      csi:
+        volumeSnapshots:
+          # Enable or disable CSI volume snapshots for ZFS LocalPV
+          # Set to true to enable snapshot functionality for ZFS LocalPV.
+          enabled: true
+
+  # Configuration for LVM LocalPV
+  lvm-localpv:
+    crds:
+      lvmLocalPv:
+        # Enable or disable LVM LocalPV CRDs
+        # Set to true to enable LVM LocalPV functionality.
+        enabled: false
+      csi:
+        volumeSnapshots:
+          # Enable or disable CSI volume snapshots for LVM LocalPV
+          # Set to true to enable snapshot functionality for LVM LocalPV.
+          enabled: true
+
+  # Configuration for storage engines
+  engines:
+    local:
+      lvm:
+        # Enable or disable LVM as a local storage engine
+        # Set to true to use LVM for local storage provisioning.
+        enabled: false
+      zfs:
+        # Enable or disable ZFS as a local storage engine
+        # Set to true to use ZFS for local storage provisioning.
+        enabled: false
+    replicated:
+      mayastor:
+        # Enable or disable Mayastor as a replicated storage engine
+        # Set to true to use Mayastor for replicated storage provisioning.
+        enabled: false
+
+  # Configuration for the LocalPV provisioner
+  localpv-provisioner:
+    analytics:
+      # Enable or disable analytics for the LocalPV provisioner
+      # Set to true to enable analytics collection.
+      enabled: false
+    hostpathClass:
+      # Enable or disable the HostPath storage class
+      # Set to true to use HostPath for local storage provisioning.
+      enabled: true
+      name: openebs-hostpath
+      # Set the HostPath storage class as the default class
+      # Set to true to make HostPath the default storage class.
+      isDefaultClass: true
+    localpv:
+      # Enable or disable LocalPV provisioning
+      # Set to true to enable LocalPV for dynamic storage provisioning.
+      enabled: true
+
+# Configuration for the Cinder CSI plugin
+openstack-cinder-csi:
+  # Enable or disable the Cinder CSI plugin
+  # Set to true to deploy the Cinder CSI plugin in your Kubernetes cluster.
+  enabled: false
+  secret:
+    # Enable or disable the use of a secret for Cinder
+    # Set to true to use a Kubernetes secret for Cinder configuration.
+    enabled: true
+    # Enable or disable mounting the secret as a host volume
+    # Set to true to mount the secret as a host volume.
+    hostMount: false
+    # Name of the Kubernetes secret for Cinder configuration
+    # Specify the name of the secret containing Cinder credentials.
+    name: cinder-csi-cloud-config
+  storageClass:
+    # Enable or disable the creation of a storage class for Cinder
+    # Set to true to create a storage class for Cinder volumes.
+    enabled: true
+    delete:
+      # Set the storage class as the default for deletion policy
+      # Set to true to make this the default storage class for deletion.
+      isDefault: false
+      # Allow or disallow volume expansion for the storage class
+      # Set to true to enable volume expansion for this storage class.
+      allowVolumeExpansion: true
+    retain:
+      # Set the storage class as the default for retention policy
+      # Set to true to make this the default storage class for retention.
+      isDefault: false
+      # Allow or disallow volume expansion for the storage class
+      # Set to true to enable volume expansion for this storage class.
+      allowVolumeExpansion: true
+
+# Configuration for Rook Ceph
+rook-ceph:
+  # Enable or disable Rook Ceph
+  # Set to true to deploy Rook Ceph in your Kubernetes cluster.
+  enabled: false
+  # Allow or disallow the use of loop devices
+  # Set to true to allow loop devices for testing purposes.
+  allowLoopDevices: false
+  csi:
+    # Enable or disable the RBD (RADOS Block Device) CSI driver
+    enableRbdDriver: true
+    # Enable or disable the CephFS CSI driver
+    enableCephfsDriver: true
+    # Enable or disable CSI encryption
+    enableCSIEncryption: false
+  crds:
+    # Enable or disable the creation of Custom Resource Definitions (CRDs)
+    enabled: true
+
+rook-ceph-cluster:
+  # Enable or disable the Rook Ceph cluster
+  # Set to true to deploy a Ceph cluster managed by Rook.
+  enabled: false
+  # Namespace for the Rook operator
+  operatorNamespace: rook-ceph
+  toolbox:
+    # Enable or disable the Rook Ceph toolbox
+    # Set to true to deploy a toolbox pod for debugging and management.
+    enabled: false
+  cephClusterSpec:
+    mon:
+      # Number of monitor pods to deploy
+      count: 3
+      # Allow or disallow multiple monitors per node
+      allowMultiplePerNode: false
+    mgr:
+      # Number of manager pods to deploy
+      count: 2
+      # Allow or disallow multiple managers per node
+      allowMultiplePerNode: false
+    dashboard:
+      # Enable or disable the Ceph dashboard
+      enabled: true
+      # Enable or disable SSL for the dashboard
+      ssl: true
+    storage:
+      # Use all nodes for storage
+      useAllNodes: true
+      # Use all devices for storage
+      useAllDevices: true
+  cephBlockPools:
+    - name: ceph-blockpool
+      spec:
+        # Failure domain for the block pool
+        failureDomain: host
+        replicated:
+          # Replication size for the block pool
+          size: 3
+      storageClass:
+        # Enable or disable the storage class for the block pool
+        enabled: true
+        # Name of the storage class
+        name: ceph-block
+        # Set the storage class as the default
+        isDefault: true
+  cephFileSystems:
+    - name: ceph-filesystem
+      spec:
+        metadataPool:
+          replicated:
+            # Replication size for the metadata pool
+            size: 3
+        dataPools:
+          - failureDomain: host
+            name: data0
+            replicated:
+              # Replication size for the data pool
+              size: 3
+        metadataServer:
+          # Number of active metadata servers
+          activeCount: 1
+          # Enable or disable active-standby mode for metadata servers
+          activeStandby: true
+      storageClass:
+        # Enable or disable the storage class for the filesystem
+        enabled: true
+        # Set the storage class as the default
+        isDefault: false
+        # Name of the storage class
+        name: ceph-filesystem
+        # Name of the data pool
+        pool: data0
+  cephObjectStores:
+    - name: ceph-objectstore
+      spec:
+        # Preserve pools on deletion
+        preservePoolsOnDelete: true
+        metadataPool:
+          failureDomain: host
+          replicated:
+            # Replication size for the metadata pool
+            size: 3
+        dataPool:
+          failureDomain: host
+          erasureCoded:
+            # Number of data chunks for erasure coding
+            dataChunks: 2
+            # Number of coding chunks for erasure coding
+            codingChunks: 1
+        gateway:
+          # Port for the object store gateway
+          port: 80
+      storageClass:
+        # Enable or disable the storage class for the object store
+        enabled: true
+        # Name of the storage class
+        name: ceph-bucket
+        parameters:
+          # Region for the object store
+          region: us-east-1
+  cephBlockPoolsVolumeSnapshotClass:
+    # Enable or disable the volume snapshot class for block pools
+    enabled: false
+    # Name of the volume snapshot class
+    name: ceph-block
+    # Set the snapshot class as the default
+    isDefault: false
+  cephFileSystemVolumeSnapshotClass:
+    # Enable or disable the volume snapshot class for filesystems
+    enabled: false
+    # Name of the volume snapshot class
+    name: ceph-filesystem
+    # Set the snapshot class as the default
+    isDefault: true

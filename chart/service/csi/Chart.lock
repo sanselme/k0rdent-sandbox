@@ -1,0 +1,15 @@
+dependencies:
+- name: openebs
+  repository: https://openebs.github.io/openebs
+  version: 4.2.0
+- name: openstack-cinder-csi
+  repository: https://kubernetes.github.io/cloud-provider-openstack
+  version: 2.32.0
+- name: rook-ceph
+  repository: https://charts.rook.io/release
+  version: v1.17.3
+- name: rook-ceph-cluster
+  repository: https://charts.rook.io/release
+  version: v1.17.3
+digest: sha256:a3da380315a5c22352ab00d9b52a08500824c4d94df2fefd2cdbe46bc74801f8
+generated: "2025-06-05T08:33:47.504062-04:00"
