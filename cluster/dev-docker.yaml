@@ -4,23 +4,47 @@ kind: ClusterDeployment
 metadata:
   name: dev-docker
   namespace: default
-  labels:
-    app.kubernetes.io/cni: cilium
-    app.kubernetes.io/csi: openebs
 spec:
   dryRun: false
   template: docker-hosted-cp-1-0-0
   credential: docker-cluster-cred
   propagateCredentials: false
+  config:
+    clusterLabels:
+      app.kubernetes.io/cni: cilium
+      app.kubernetes.io/csi: openebs
+    k0s:
+      api:
+        sans:
+          - docker.kubernetes.local
+      network:
+        provider: custom
+      featureGates:
+        - name: UserNamespacesSupport
+          enabled: true
+      helm:
+        charts:
+          - name: cni
+            chartname: oci://registry-1.docker.io/labsonline/charts/cni
+            namespace: kube-system
+            version: 1.0.0
   serviceSpec:
     services:
       - template: cni-1-0-0
         name: cni
         namespace: kube-system
         values: |
-          pool:
-            enabled: true
-            allowFirstLastIPs: No
-            cidr: 172.16.254.0/24
-          operator:
-            replicas: 1
+          cilium:
+            bgpControlPlane:
+              enabled: false
+            gatewayAPI:
+              gatewayClass:
+                create: "true"
+                hostNetwork:
+                  enabled: true
+            pool:
+              enabled: true
+              allowFirstLastIPs: No
+              cidr: 172.16.254.0/24
+            operator:
+              replicas: 1

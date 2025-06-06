@@ -5,16 +5,35 @@ metadata:
   name: dev-remote
   namespace: default
 spec:
-  template: remote-cluster-0-0-1
+  template: remote-cluster-1-0-0
   credential: remote-cluster-cred
   propagateCredentials: false
   config:
+    controlPlaneNumber: 1
+    clusterLabels:
+      app.kubernetes.io/cni: cilium
+      app.kubernetes.io/csi: openebs
     k0smotron:
       service:
-        type: LoadBalancer
+        type: NodePort
+    k0s:
+      api:
+        sans:
+          - remote.kubernetes.local
+      network:
+        provider: custom
+      featureGates:
+        - name: UserNamespacesSupport
+          enabled: true
+      helm:
+        charts:
+          - name: cni
+            chartname: oci://registry-1.docker.io/labsonline/charts/cni
+            namespace: kube-system
+            version: 1.0.0
     machines:
       - address: 10.211.55.3
-        user: root # The user must have root permissions
+        user: parallels # The user must have root permissions
         port: 22
   serviceSpec:
     services:
@@ -22,9 +41,17 @@ spec:
         name: cni
         namespace: kube-system
         values: |
-          pool:
-            enabled: true
-            allowFirstLastIPs: No
-            cidr: 172.16.252.0/24
-          operator:
-            replicas: 1
+          cilium:
+            bgpControlPlane:
+              enabled: false
+            gatewayAPI:
+              gatewayClass:
+                create: "true"
+                hostNetwork:
+                  enabled: true
+            pool:
+              enabled: true
+              allowFirstLastIPs: No
+              cidr: 172.16.252.0/24
+            operator:
+              replicas: 1

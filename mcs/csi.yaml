@@ -14,40 +14,11 @@ spec:
         name: csi
         namespace: kube-system
         values: |
-          openebs-crds:
+          openebs:
             csi:
               volumeSnapshots:
-                enabled: false
-                keep: false
-          zfs-localpv:
-            crds:
-              zfsLocalPv:
                 enabled: true
-              csi:
-                volumeSnapshots:
-                  enabled: true
-          lvm-localpv:
-            crds:
-              lvmLocalPv:
-                enabled: false
-              csi:
-                volumeSnapshots:
-                  enabled: true
-          engines:
-            local:
-              lvm:
-                enabled: false
-              zfs:
-                enabled: false
-            replicated:
-              mayastor:
-                enabled: false
+                keep: false
           localpv-provisioner:
-            analytics:
-              enabled: false
             hostpathClass:
-              enabled: true
-              isDefaultClass: true
               name: general
-            localpv:
-              enabled: true

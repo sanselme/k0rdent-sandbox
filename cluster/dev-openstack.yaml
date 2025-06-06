@@ -8,15 +8,42 @@ spec:
   template: openstack-cluster-0-0-1
   credential: openstack-cluster-cred
   propagateCredentials: false
+  config:
+    clusterLabels:
+      app.kubernetes.io/cni: cilium
+      app.kubernetes.io/csi: openebs
+    k0s:
+      api:
+        sans:
+          - openstack.kubernetes.local
+      network:
+        provider: custom
+      featureGates:
+        - name: UserNamespacesSupport
+          enabled: true
+      helm:
+        charts:
+          - name: cni
+            chartname: oci://registry-1.docker.io/labsonline/charts/cni
+            namespace: kube-system
+            version: 1.0.0
   serviceSpec:
     services:
       - template: cni-1-0-0
         name: cni
         namespace: kube-system
         values: |
-          pool:
-            enabled: true
-            allowFirstLastIPs: No
-            cidr: 172.16.253.0/24
-          operator:
-            replicas: 1
+          cilium:
+            bgpControlPlane:
+              enabled: false
+            gatewayAPI:
+              gatewayClass:
+                create: "true"
+                hostNetwork:
+                  enabled: true
+            pool:
+              enabled: true
+              allowFirstLastIPs: No
+              cidr: 172.16.253.0/24
+            operator:
+              replicas: 1

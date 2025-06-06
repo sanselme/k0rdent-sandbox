@@ -69,6 +69,8 @@ openebs:
       # Enable or disable the HostPath storage class
       # Set to true to use HostPath for local storage provisioning.
       enabled: true
+      # Name of the HostPath storage class
+      # Specify the name of the HostPath storage class.
       name: openebs-hostpath
       # Set the HostPath storage class as the default class
       # Set to true to make HostPath the default storage class.
