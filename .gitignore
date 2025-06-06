@@ -1,0 +1,47 @@
+# Ignore temporary files and directories
+*.log
+*.tmp
+*.swp
+*.bak
+*.pid
+*.seed
+*.out
+
+# Ignore node_modules (if using JavaScript/Node.js tools)
+node_modules/
+
+# Ignore Python virtual environments (if applicable)
+venv/
+.env
+*.pyc
+__pycache__/
+
+# Ignore Kubernetes configuration files
+/tmp/kind.yaml
+*kubeconfig*
+
+# Ignore Helm-related files
+charts/
+*.tgz
+
+# Ignore build artifacts
+build/
+dist/
+hack/upstream/
+*.o
+*.so
+*.a
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.iml
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore sensitive files
+.env.local
+.env.*
+secrets.yaml
