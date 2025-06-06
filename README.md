@@ -70,6 +70,10 @@ nodes:
         hostPort: 443
         protocol: TCP
         listenAddress: 0.0.0.0
+      - containerPort: 30443
+        hostPort: 30443
+        protocol: TCP
+        listenAddress: 0.0.0.0
 EOF
 ```
 
@@ -125,7 +129,7 @@ Wait for KCM to be ready:
 kubectl wait \
   --for condition=Ready \
   --namespace kcm-system \
-  --timeout 360s \
+  --timeout 720s \
   Management/kcm
 ```
 
@@ -134,7 +138,23 @@ kubectl wait \
 Deploy your management workload using `kustomize`:
 
 ```shell
-kustomize build . | kubectl apply -f -
+timeout_duration=60  # Set the timeout duration in seconds
+max_retries=100      # Set the maximum number of retries
+
+for ((i=1; i<=max_retries; i++)); do
+  if timeout $timeout_duration kubectl apply -f <(kustomize build); then
+    break
+  else
+    echo "Attempt $i failed. Retrying in 10 seconds..."
+    sleep 10
+  fi
+done
+
+if [ $i -gt $max_retries ]; then
+  echo "Command failed after $max_retries attempts."
+  exit 1
+fi
+
 kustomize build ./kcm | kubectl apply -f -
 ```
 
