@@ -1,0 +1,13 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - adopted
+  - docker
+  - openstack
+  - remote
+  - vsphere
