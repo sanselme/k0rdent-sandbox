@@ -1,0 +1,10 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: core
+spec:
+  supportedTemplates:
+    - name: cert-manager-1-17-2
+    - name: cni-1-0-0
+    - name: csi-1-0-0
