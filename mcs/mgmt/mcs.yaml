@@ -1,0 +1,87 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: mgmt-mcs
+spec:
+  clusterSelector:
+    matchLabels:
+      k0rdent.mirantis.com/management-cluster: "true"
+      sveltos-agent: present
+  serviceSpec:
+    priority: 100
+    services:
+      - template: external-snapshotter-crd
+        name: external-snapshotter-crd
+        namespace: kube-system
+      - template: gateway-api-experimental-crd
+        name: gateway-api-experimental-crd
+        namespace: kube-system
+      - template: cni-1-0-0
+        name: cni
+        namespace: kube-system
+        values: |
+          kubeProxyReplacement: true
+          bgpControlPlane:
+            enabled: false
+          gatewayAPI:
+            enabled: true
+            gatewayClass:
+              create: "true"
+              hostNetwork:
+                enabled: true
+          envoy:
+            securityContext:
+              capabilities:
+                keepCapNetBindService: true
+                envoy:
+                  - NET_ADMIN
+                  - NET_BIND_SERVICE
+                  - SYS_ADMIN
+          # pool:
+          #   enabled: true
+          #   allowFirstLastIPs: No
+          #   cidr: 172.16.254.0/24
+          operator:
+            replicas: 1
+      - template: csi-1-0-0
+        name: csi
+        namespace: kube-system
+        values: |
+          openebs-crds:
+            csi:
+              volumeSnapshots:
+                enabled: false
+                keep: false
+          zfs-localpv:
+            crds:
+              zfsLocalPv:
+                enabled: true
+              csi:
+                volumeSnapshots:
+                  enabled: true
+          lvm-localpv:
+            crds:
+              lvmLocalPv:
+                enabled: false
+              csi:
+                volumeSnapshots:
+                  enabled: true
+          engines:
+            local:
+              lvm:
+                enabled: false
+              zfs:
+                enabled: false
+            replicated:
+              mayastor:
+                enabled: false
+          localpv-provisioner:
+            analytics:
+              enabled: false
+            hostpathClass:
+              enabled: true
+              isDefaultClass: true
+              name: standard
+            localpv:
+              enabled: true
