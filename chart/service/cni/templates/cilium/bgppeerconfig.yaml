@@ -1,0 +1,26 @@
+{{- if and .Values.cilium.enabled .Values.cilium.bgp.enabled }}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeerConfig
+metadata:
+  name: {{ include "cni-resources.fullname" . }}-peer-config
+  labels:
+    {{- include "cni-resources.labels" . | nindent 4 }}
+spec:
+  authSecretRef: {{ .Values.cilium.bgp.peer.authSecretRef }}
+  ebgpMultihop: {{ .Values.cilium.bgp.peer.multiHop }}
+  timers:
+    holdTimeSeconds: {{ .Values.cilium.bgp.peer.holdTimeSec }}
+    keepAliveTimeSeconds: {{ .Values.cilium.bgp.peer.keepAliveTimeSec }}
+  gracefulRestart:
+    enabled: {{ .Values.cilium.bgp.peer.gracefulRestart }}
+    restartTimeSeconds: {{ .Values.cilium.bgp.peer.restartTimeSec }}
+  families: {{- range .Values.cilium.bgp.peer.addressFamilies }}
+    - afi: {{ .afi }}
+      safi: {{ .safi }}
+      {{- if .advertisements }}
+      advertisements:
+        {{- toYaml .advertisements | nindent 8 }}
+      {{- end }}
+  {{- end }}
+{{- end }}

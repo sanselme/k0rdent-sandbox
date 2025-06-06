@@ -1,0 +1,41 @@
+# NOTES.txt
+
+Thank you for installing the CNI Helm chart!
+
+This chart deploys the Cilium CNI plugin and its associated resources.
+
+## Next Steps
+
+1. **Verify Installation**:
+   - Check the status of the Cilium pods:
+     ```bash
+     kubectl get pods -n kube-system -l k8s-app=cilium
+     ```
+
+2. **Validate CNI Functionality**:
+   - Ensure that the CNI is properly configured and networking is functional.
+   - Test pod-to-pod communication:
+     ```bash
+     kubectl run test-pod --image=busybox --restart=Never -- sleep 3600
+     kubectl exec -it test-pod -- ping <another-pod-ip>
+     ```
+
+3. **BGP Configuration** (if enabled):
+   - Verify BGP advertisements:
+     ```bash
+     kubectl logs -n kube-system -l k8s-app=cilium | grep BGP
+     ```
+
+4. **Uninstallation**:
+   - To uninstall the chart, run:
+     ```bash
+     helm uninstall <release-name>
+     ```
+
+## Additional Information
+
+- For more details on Cilium, visit the [official documentation](https://docs.cilium.io/).
+- If you encounter any issues, check the logs of the Cilium pods:
+  ```bash
+  kubectl logs -n kube-system -l k8s-app=cilium
+  ```

@@ -1,0 +1,26 @@
+{{- if and .Values.cilium.enabled .Values.cilium.bgp.enabled }}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPClusterConfig
+metadata:
+  name: {{ include "cni-resources.fullname" . }}-cluster-config
+  labels:
+    {{- include "cni-resources.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.cilium.bgp.nodeSelector }}
+  nodeSelector: {{ .Values.cilium.bgp.nodeSelector | toYaml | nindent 4 }}
+  {{- end }}
+  bgpInstances: {{- range .Values.cilium.bgp.instances }}
+    - name: {{ .name }}
+      localASN: {{ .localASN }}
+      peers: {{- range .peers }}
+        - name: {{ .name }}
+          peerASN: {{ .peerASN }}
+          peerAddress: {{ .peerAddress }}
+          {{- if .peerConfigRef }}
+          peerConfigRef:
+            name: {{ .peerConfigRef.name }}
+          {{- end }}
+        {{- end }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,27 @@
+{{- if and .Values.cilium.enabled .Values.cilium.bgp.enabled }}
+{{- range .Values.cilium.bgp.instances }}
+{{- if .overrides.enabled }}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPNodeConfigOverride
+metadata:
+  name: {{ include "cni-resources.fullname" $ }}-node-config-override-{{ .name }}
+  labels:
+    {{- include "cni-resources.labels" $ | nindent 4 }}
+spec:
+  bgpInstances:
+    - name: {{ .name }}
+      localPort: {{ .localPort | default 179 }}
+      {{- if .overrides.routerID }}
+      routerID: {{ .overrides.routerID }}
+      {{- end }}
+      {{- range .peers }}
+      {{-  if .localAddress }}
+      peers:
+        - name: {{ .name }}
+          localAddress: {{ .localAddress }}
+      {{- end }}
+      {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
