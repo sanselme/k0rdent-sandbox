@@ -1,0 +1,11 @@
+---
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - mgmt
+  - cni.yaml
+  - csi.yaml
+  - global.yaml

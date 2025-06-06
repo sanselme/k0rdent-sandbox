@@ -1,0 +1,53 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: csi
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/csi: openebs
+  serviceSpec:
+    priority: 100
+    services:
+      - template: csi-1-0-0
+        name: csi
+        namespace: kube-system
+        values: |
+          openebs-crds:
+            csi:
+              volumeSnapshots:
+                enabled: false
+                keep: false
+          zfs-localpv:
+            crds:
+              zfsLocalPv:
+                enabled: true
+              csi:
+                volumeSnapshots:
+                  enabled: true
+          lvm-localpv:
+            crds:
+              lvmLocalPv:
+                enabled: false
+              csi:
+                volumeSnapshots:
+                  enabled: true
+          engines:
+            local:
+              lvm:
+                enabled: false
+              zfs:
+                enabled: false
+            replicated:
+              mayastor:
+                enabled: false
+          localpv-provisioner:
+            analytics:
+              enabled: false
+            hostpathClass:
+              enabled: true
+              isDefaultClass: true
+              name: general
+            localpv:
+              enabled: true
