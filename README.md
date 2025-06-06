@@ -164,6 +164,22 @@ Create a workload cluster:
 
 ```shell
 kustomize build ./cluster | kubectl apply -f -
+
+# Wait for kubeconfig to be created
+echo "Waiting for kubeconfig to be created..."
+while true; do
+  secret_name=$(kubectl get secret -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | grep kubeconfig | head -n1)
+  if [[ -n "${secret_name}" ]]; then
+    echo "Secret ${secret_name} found."
+    break
+  fi
+  echo "Secret not found. Retrying in 5 seconds..."
+  sleep 5
+done
+
+# Export the kubeconfig from the secret to hack/kubeconfig.yaml
+kubectl get secret dev-docker-kubeconfig -o jsonpath='{.data.value}' | base64 --decode > hack/kubeconfig.yaml
+echo "Exported kubeconfig to hack/kubeconfig.yaml"
 ```
 
 ---
