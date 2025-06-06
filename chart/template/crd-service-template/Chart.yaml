@@ -1,0 +1,6 @@
+---
+apiVersion: v2
+type: application
+name: crd-service-template
+description: labsonline service template for "crd"
+version: 1.0.0

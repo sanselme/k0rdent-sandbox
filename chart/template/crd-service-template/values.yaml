@@ -1,0 +1,22 @@
+---
+crd:
+  - name: external-snapshotter
+    enabled: true
+    path: ./client/config/crd
+    tag: v8.2.1
+    url: https://github.com/kubernetes-csi/external-snapshotter.git
+  - name: gateway-api
+    enabled: true
+    path: ./config/crd
+    tag: v1.2.1
+    url: https://github.com/kubernetes-sigs/gateway-api.git
+  - name: gateway-api-experimental
+    enabled: true
+    path: ./config/crd/experimental
+    tag: v1.2.1
+    url: https://github.com/kubernetes-sigs/gateway-api.git
+  - name: prometheus-operator
+    enabled: true
+    path: .
+    tag: v0.83.0
+    url: https://github.com/prometheus-operator/prometheus-operator.git

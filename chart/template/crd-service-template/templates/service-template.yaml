@@ -1,0 +1,16 @@
+{{ range .Values.crd }}
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplate
+metadata:
+  name: {{ .name }}-crd
+spec:
+  kustomize:
+    deploymentType: Remote
+    path: {{ .path }}
+    remoteSourceSpec:
+      git:
+        url: {{ .url }}
+        ref:
+          tag: {{ .tag }}
+{{- end }}
