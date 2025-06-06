@@ -1,0 +1,41 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kcm
+spec:
+  releaseName: kcm
+  chartRef:
+    kind: HelmChart
+    name: kcm-1-0-0
+    namespace: kcm-system
+  values:
+    replicas: 1
+    controller:
+      enableTelemetry: false
+    cert-manager:
+      enableCertificateOwnerRef: true
+      crds:
+        enabled: true
+        keep: false
+      config:
+        apiVersion: controller.config.cert-manager.io/v1alpha1
+        kind: ControllerConfiguration
+        enableGatewayAPI: true
+    flux2:
+      helmController:
+        create: true
+        container:
+          additionalArgs:
+            - --watch-label-selector=k0rdent.mirantis.com/managed=true
+      kustomizeController:
+        create: true
+        container:
+          additionalArgs:
+            - --watch-label-selector=k0rdent.mirantis.com/managed=true
+      sourceController:
+        create: true
+        persistence:
+          enabled: true
+        container:
+          additionalArgs:
+            - --watch-label-selector=k0rdent.mirantis.com/managed=true
