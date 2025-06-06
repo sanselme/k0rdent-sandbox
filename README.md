@@ -14,7 +14,6 @@ This repository demonstrates how to set up a Kubernetes cluster using `kind`, in
   - [5. Install KCM](#5-install-kcm)
   - [6. Deploy Management Workload](#6-deploy-management-workload)
   - [7. Create Workload Cluster](#7-create-workload-cluster)
-- [Optional Steps](#optional-steps)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -136,6 +135,7 @@ Deploy your management workload using `kustomize`:
 
 ```shell
 kustomize build . | kubectl apply -f -
+kustomize build ./kcm | kubectl apply -f -
 ```
 
 ### 7. Create Workload Cluster
@@ -145,16 +145,6 @@ Create a workload cluster:
 ```shell
 kustomize build ./cluster | kubectl apply -f -
 ```
-
----
-
-## Optional Steps
-
-- **Update KCM Release**: Update the KCM release if needed:
-
-  ```shell
-  kustomize build ./kcm | kubectl apply -f -
-  ```
 
 ---
 
