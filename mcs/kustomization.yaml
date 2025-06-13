@@ -6,6 +6,9 @@ generatorOptions:
   disableNameSuffixHash: true
 resources:
   - mgmt
-  - cni.yaml
-  - csi.yaml
+  - component/cloudcontroller
+  - component/cloudvisor
+  - component/codecloud
+  - profile/cruiser
+  - profile/harbor
   - global.yaml
