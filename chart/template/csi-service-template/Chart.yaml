@@ -1,6 +1,0 @@
----
-apiVersion: v2
-type: application
-name: csi-service-template
-description: labsonline service template for "csi"
-version: 1.0.0

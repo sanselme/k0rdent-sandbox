@@ -1,6 +1,0 @@
----
-apiVersion: v2
-type: application
-name: cert-manager-service-template
-description: labsonline service template for "cert-manager"
-version: 1.0.0
