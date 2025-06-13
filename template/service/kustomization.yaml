@@ -8,7 +8,8 @@ commonLabels:
 generatorOptions:
   disableNameSuffixHash: true
 resources:
+  - ca.yaml
   - crd.yaml
-  - cni.yaml
-  - csi.yaml
-  - cm.yaml
+  - edns.yaml
+  - gateway.yaml
+  - knative.yaml
