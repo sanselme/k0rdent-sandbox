@@ -9,4 +9,6 @@ commonLabels:
   k0rdent.mirantis.com/managed: "true"
 resources:
   - accessmanagement.yaml
+  - cni.yaml
+  - csi.yaml
   - kcm.yaml

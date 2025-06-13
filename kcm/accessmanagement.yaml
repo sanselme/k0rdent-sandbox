@@ -6,6 +6,7 @@ metadata:
 spec:
   accessRules:
     - serviceTemplateChains:
+        - addon
         - core
         - crd
       targetNamespaces:
