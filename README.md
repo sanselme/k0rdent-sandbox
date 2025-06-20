@@ -118,8 +118,9 @@ helm upgrade kcm oci://ghcr.io/k0rdent/kcm/charts/kcm \
   --create-namespace \
   --install \
   --namespace kcm-system \
-  --set flux2.kustomizeController.create=true \
+  --set controller.management=false \
   --set 'flux2.kustomizeController.container.additionalArgs[0]=--watch-label-selector=k0rdent.mirantis.com/managed=true' \
+  --set flux2.kustomizeController.create=true \
   --wait
 ```
 
