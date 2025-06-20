@@ -5,10 +5,10 @@ buildMetadata:
 generatorOptions:
   disableNameSuffixHash: true
 resources:
-  - mgmt
-  - component/cloudcontroller
-  - component/cloudvisor
-  - component/codecloud
-  - profile/cruiser
-  - profile/harbor
   - global.yaml
+  - mgmt
+  # - component/cloudcontroller
+  # - component/cloudvisor
+  # - component/codecloud
+  # - profile/cruiser
+  # - profile/harbor
