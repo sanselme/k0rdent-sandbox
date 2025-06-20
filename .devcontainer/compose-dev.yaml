@@ -17,13 +17,13 @@ services:
       - /tmp
     volumes:
       - ../:/home/devcontainer/workspace
-      - ../hack/containerd.toml:/etc/k0s/containerd.d/systemd.toml:ro
       - ./authorized_keys:/home/devcontainer/.ssh/authorized_keys:ro
       - ./crds:/var/lib/k0s/manifests/crds:ro
       - /dev/kmsg:/dev/kmsg:ro # required by kubelets OOM watcher
       - /lib/modules:/lib/modules:ro # required by cylium
       - /var/lib/k0s
       - /var/log/pods
+      # - ../hack/containerd.toml:/etc/k0s/containerd.d/systemd.toml:ro
     ports:
       - 10022:22
       - 30443:30443
