@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# Except these files
+!.gitignore
+
+!cloudinit.yaml
+!cluster.yaml
+!containerd.toml
+!README.md
+
+# ...even if they are in subdirectories
+!*/

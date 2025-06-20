@@ -1,0 +1,104 @@
+---
+apiVersion: k0sctl.k0sproject.io/v1beta1
+kind: Cluster
+metadata:
+  name: kcm
+spec:
+  hosts:
+    - role: controller+worker
+      noTaints: true
+      ssh:
+        address: 127.0.0.1
+        keyPath: ~/.ssh/id_ed25519
+        port: 10022
+        user: devcontainer
+  k0s:
+    version: v1.33.1+k0s.1
+    config:
+      apiVersion: k0s.k0sproject.io/v1beta1
+      kind: Cluster
+      metadata:
+        name: kcm
+      spec:
+        api:
+          sans:
+            - kcm.orb.local
+        network:
+          provider: custom
+        featureGates:
+          - name: UserNamespacesSupport
+            enabled: true
+        extensions:
+          helm:
+            charts:
+              - name: cni
+                chartname: oci://ghcr.io/labsonline/charts/cni
+                namespace: kube-system
+                order: 1
+                version: 1.0.0
+                values: |
+                  cilium:
+                    bgpControlPlane:
+                      enabled: false
+                    gatewayAPI:
+                      gatewayClass:
+                        create: "true"
+                        hostNetwork:
+                          enabled: true
+                    operator:
+                      replicas: 1
+                    pool:
+                      enabled: false
+              - name: csi
+                chartname: oci://ghcr.io/labsonline/charts/csi
+                namespace: kube-system
+                order: 2
+                version: 1.0.0
+                values: |
+                  openebs:
+                    csi:
+                      volumeSnapshots:
+                        enabled: true
+                        keep: false
+                    localpv-provisioner:
+                      hostpathClass:
+                        name: general
+              - name: kcm
+                chartname: oci://ghcr.io/k0rdent/kcm/charts/kcm
+                namespace: kcm-system
+                order: 3
+                version: 1.0.0
+                values: |
+                  replicas: 1
+                  controller:
+                    createManagement: false
+                    enableTelemetry: false
+                  cert-manager:
+                    enableCertificateOwnerRef: true
+                    crds:
+                      enabled: true
+                      keep: false
+                    config:
+                      apiVersion: controller.config.cert-manager.io/v1alpha1
+                      kind: ControllerConfiguration
+                      enableGatewayAPI: true
+                  flux2:
+                    helmController:
+                      create: true
+                      container:
+                        additionalArgs:
+                          - --watch-label-selector=k0rdent.mirantis.com/managed=true
+                    kustomizeController:
+                      create: true
+                      container:
+                        additionalArgs:
+                          - --watch-label-selector=k0rdent.mirantis.com/managed=true
+                    sourceController:
+                      create: true
+                      persistence:
+                        enabled: true
+                      container:
+                        additionalArgs:
+                          - --watch-label-selector=k0rdent.mirantis.com/managed=true
+        telemetry:
+          enabled: false

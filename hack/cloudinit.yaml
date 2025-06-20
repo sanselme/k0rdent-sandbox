@@ -1,0 +1,73 @@
+#cloud-config
+fqdn: kcm.local
+hostname: kcm
+manage_etc_hosts: true
+package_update: true
+package_upgrade: true
+timezone: America/Toronto
+growpart:
+  mode: auto
+  ignore_growroot_disabled: false
+  devices: [/]
+users:
+  - default
+  - name: devcontainer
+    groups: sudo,docker
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKgAbVwkk5l/yxWjA+VzbX6htL96fQXFxsqJjXqkCTE0
+apt:
+  sources:
+    docker.list:
+      source: deb https://download.docker.com/linux/ubuntu jammy stable
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+packages:
+  - apparmor
+  - apt-transport-https
+  - ca-certificates
+  - conntrack
+  - containerd.io
+  - curl
+  - docker-ce
+  - docker-ce-cli
+  - gnupg
+  - gnupg-agent
+  - libseccomp2
+  - openssh-server
+  - software-properties-common
+write_files:
+  - path: /etc/environment
+    permissions: "0644"
+    owner: root
+    content: |
+      PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+      EDITOR="vim"
+  - path: /usr/lib/systemd/system/user@.service.d/delegate.conf
+    permissions: "0644"
+    owner: root
+    content: |
+      [Service]
+      Delegate=cpu cpuset io memory pids
+  - path: /opt/configure.sh
+    permissions: "0755"
+    owner: root
+    content: |
+      #!/bin/bash
+      set -eux
+
+      : "${LOCALE:="C.UTF-8"}"
+      : "${TIMEZONE:="America/Toronto"}"
+
+      # disable swap
+      swapoff -a && sed -ri '/\sswap\s/s/^#?/#/' /etc/fstab || true
+
+      # set locale
+      localectl set-locale LANG="${LOCALE}"
+
+      # set timezone
+      timedatectl set-ntp true
+      timedatectl set-timezone "${TIMEZONE}"
+runcmd:
+  - /opt/configure.sh
+bootcmd:
+  - stat -c %T -f /sys/fs/cgroup
