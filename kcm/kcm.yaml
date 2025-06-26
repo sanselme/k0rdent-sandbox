@@ -3,6 +3,7 @@ kind: HelmRelease
 metadata:
   name: kcm
 spec:
+  interval: 10m0s
   releaseName: kcm
   chartRef:
     kind: HelmChart
@@ -11,6 +12,7 @@ spec:
   values:
     replicas: 1
     controller:
+      createManagement: false
       enableTelemetry: false
     cert-manager:
       enableCertificateOwnerRef: true

@@ -11,5 +11,5 @@ resources:
   - cni.yaml
   - csi.yaml
   - kcm.yaml
-  - accessmanagement.yaml
   - management.yaml
+  - accessmanagement.yaml

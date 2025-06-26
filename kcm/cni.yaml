@@ -21,6 +21,8 @@ spec:
         gatewayClass:
           create: "true"
           hostNetwork:
-            enabled: true
+            enabled: false
       operator:
         replicas: 1
+      pool:
+        enabled: true
