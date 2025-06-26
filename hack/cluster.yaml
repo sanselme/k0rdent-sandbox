@@ -8,10 +8,12 @@ spec:
     - role: controller+worker
       noTaints: true
       ssh:
-        address: 127.0.0.1
+        address: 192.168.0.105
         keyPath: ~/.ssh/id_ed25519
-        port: 10022
-        user: devcontainer
+        port: 22
+        user: parallels
+      installFlags:
+        - --kubelet-extra-args=--cgroup-driver=systemd
   k0s:
     version: v1.33.1+k0s.1
     config:
@@ -22,7 +24,7 @@ spec:
       spec:
         api:
           sans:
-            - kcm.orb.local
+            - kcm.dev.local
         network:
           provider: custom
         featureGates:
@@ -44,7 +46,7 @@ spec:
                       gatewayClass:
                         create: "true"
                         hostNetwork:
-                          enabled: true
+                          enabled: false
                     operator:
                       replicas: 1
                     pool:
