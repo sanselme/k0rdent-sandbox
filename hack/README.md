@@ -34,6 +34,16 @@ The `hack` directory provides tools and manifests for VM-based cluster setup, CR
 
 Use `./hack/cloudinit.yaml` to create a VM. Install Docker in the VM to enable `DockerCluster` creation.
 
+```shell
+# Linux
+apt install genisoimage
+genisoimage -joliet -rock -output ./seed.iso -volid cidata ./user-data ./meta-data ./network-config 
+
+# macOS
+brew install cdrtools
+mkisofs -joliet -rock -output ./seed.iso -volid cidata ./user-data ./meta-data ./network-config 
+```
+
 ### 2. Generate and Upload CRDs
 
 Generate CRDs and upload them to the VM at `/var/lib/k0s/manifests/crds/`:

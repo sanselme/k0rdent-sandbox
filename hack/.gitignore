@@ -4,9 +4,14 @@
 # Except these files
 !.gitignore
 
-!cloudinit.yaml
+!cloudinit/*
+!wireguard/*
+!bootstrap.sh
 !cluster.yaml
+!configure.sh
 !containerd.toml
+!frr.conf.tmpl
+
 !README.md
 
 # ...even if they are in subdirectories
