@@ -1,7 +1,0 @@
----
-buildMetadata:
-  - managedByLabel
-  - originAnnotations
-generatorOptions:
-  disableNameSuffixHash: true
-resources: []
