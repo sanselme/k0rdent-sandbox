@@ -7,8 +7,3 @@ generatorOptions:
 resources:
   - global.yaml
   - mgmt
-  # - component/cloudcontroller
-  # - component/cloudvisor
-  # - component/codecloud
-  # - profile/cruiser
-  # - profile/harbor

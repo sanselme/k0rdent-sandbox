@@ -95,29 +95,12 @@ Deploy KCM using Helm:
 kcm_templates_url=oci://ghcr.io/k0rdent/kcm/charts
 kcm_version=1.1.1
 
-# generate helm chart values file
-stat /tmp/values.yaml >/dev/null 2>&1 ||
-cat <<EOF >/tmp/values.yaml
----
-replicas: 1
-controller:
-  createAccessManagement: false # requires management
-  createManagement: false       # we're deploying management separately
-  createTemplates: false
-  enableTelemetry: false
-  templatesRepoURL: $kcm_templates_url
-image:
-  repository: ghcr.io/k0rdent/kcm/controller
-  tag: $kcm_version
-EOF
-
 # deploy helm chart
 helm upgrade kcm $kcm_templates_url/kcm \
   --atomic \
   --create-namespace \
   --install \
   --namespace kcm-system \
-  --values /tmp/values.yaml \
   --version $kcm_version \
   --wait
 
@@ -139,6 +122,9 @@ Deploy your management workload using `kustomize`:
 ```shell
 timeout_duration=60  # Set the timeout duration in seconds
 max_retries=100      # Set the maximum number of retries
+
+PRIVATE_SSH_KEY_B64=$(cat ~/.ssh/id_ed25519 | base64 -w0)
+PRIVATE_SSH_KEY_B64="$PRIVATE_SSH_KEY_B64"  envsubst < template/cluster/remote/env.example >template/cluster/remote/.env
 
 for ((i=1; i<=max_retries; i++)); do
   if timeout $timeout_duration kubectl apply -f <(kustomize build); then
@@ -176,6 +162,7 @@ done
 
 # Export the kubeconfig from the secret to hack/kubeconfig.yaml
 kubectl get secret dev-docker-kubeconfig -o jsonpath='{.data.value}' | base64 --decode > hack/kubeconfig.yaml
+sed -i '' 's/server: https:\/\/.*:30443/server: https:\/\/127.0.0.1:30443/' hack/kubeconfig.yaml
 echo "Exported kubeconfig to hack/kubeconfig.yaml"
 ```
 

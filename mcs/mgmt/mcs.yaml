@@ -14,49 +14,49 @@ spec:
       - template: external-snapshotter-crd
         name: external-snapshotter-crd
         namespace: kube-system
-      - template: gateway-api-experimental-crd
-        name: gateway-api-experimental-crd
-        namespace: kube-system
+      # - template: gateway-api-experimental-crd
+      #   name: gateway-api-experimental-crd
+      #   namespace: kube-system
       # - template: edns-1-0-0
       #   name: edns
       #   namespace: kube-system
       #   values: ""
-      - template: gateway-1-0-0
-        name: gateway
-        namespace: kube-system
-        values: |
-          gateways:
-            - name: default-gateway
-              className: cilium
-              listeners:
-                - name: http
-                  port: 80
-                  protocol: HTTP
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-                - name: https
-                  port: 443
-                  protocol: HTTPS
-                  hostname: "*.local"
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-                  tls:
-                    mode: Terminate
-                    certificateRefs:
-                      - name: default-gw-cert
-                        issuer: self-signed-ca-issuer
-            - name: tls-gateway
-              className: cilium
-              listeners:
-                - name: tls
-                  port: 443
-                  protocol: TLS
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-                    kinds:
-                      - kind: TLSRoute
-                  tls:
-                    mode: Passthrough
+      # - template: gateway-1-0-0
+      #   name: gateway
+      #   namespace: kube-system
+      #   values: |
+      #     gateways:
+      #       - name: default-gateway
+      #         className: cilium
+      #         listeners:
+      #           - name: http
+      #             port: 80
+      #             protocol: HTTP
+      #             allowedRoutes:
+      #               namespaces:
+      #                 from: All
+      #           - name: https
+      #             port: 443
+      #             protocol: HTTPS
+      #             hostname: "*.local"
+      #             allowedRoutes:
+      #               namespaces:
+      #                 from: All
+      #             tls:
+      #               mode: Terminate
+      #               certificateRefs:
+      #                 - name: default-gw-cert
+      #                   issuer: self-signed-ca-issuer
+      #       - name: tls-gateway
+      #         className: cilium
+      #         listeners:
+      #           - name: tls
+      #             port: 443
+      #             protocol: TLS
+      #             allowedRoutes:
+      #               namespaces:
+      #                 from: All
+      #               kinds:
+      #                 - kind: TLSRoute
+      #             tls:
+      #               mode: Passthrough

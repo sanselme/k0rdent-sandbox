@@ -5,7 +5,6 @@ metadata:
   name: kcm
   labels:
     k0rdent.mirantis.com/component: kcm
-    k0rdent.mirantis.com/managed: 'true'
 spec:
   release: kcm-1-1-1
   providers:
@@ -25,10 +24,6 @@ spec:
       config:
         replicas: 1
         controller:
-          createAccessManagement: false # requires management
-          createManagement: false       # we're deploying management separately
-          createRelease: false          # we're deploying release separately
-          createTemplates: false
           enableTelemetry: false
           templatesRepoURL: oci://ghcr.io/k0rdent/kcm/charts
         image:
@@ -41,11 +36,11 @@ spec:
           #   kind: ControllerConfiguration
           #   enableGatewayAPI: true
         flux2:
-          # kustomizeController:
-          #   create: true
-          #   container:
-          #     additionalArgs:
-          #       - --watch-label-selector=k0rdent.mirantis.com/managed=true
+          kustomizeController:
+            create: true
+            container:
+              additionalArgs:
+                - --watch-label-selector=k0rdent.mirantis.com/managed=true
           sourceController:
             persistence:
               enabled: true

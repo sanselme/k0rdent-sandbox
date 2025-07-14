@@ -5,4 +5,4 @@ metadata:
   name: openstack-standalone-cp
 spec:
   supportedTemplates:
-    - name: openstack-standalone-cp-1-0-0
+    - name: openstack-standalone-cp-1-0-9

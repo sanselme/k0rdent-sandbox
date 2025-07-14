@@ -5,6 +5,6 @@ metadata:
   name: core
 spec:
   supportedTemplates:
-    - name: cert-manager-1-1-1
-    - name: external-dns-1-1-1
-    - name: gateway-1-1-1
+    - name: ca-1-0-2
+    - name: edns-1-0-2
+    - name: gateway-1-0-2

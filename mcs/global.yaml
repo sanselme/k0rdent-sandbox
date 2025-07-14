@@ -28,12 +28,12 @@ spec:
   serviceSpec:
     priority: 100
     services:
-      - template: ca-1-0-0
+      - template: ca-1-0-2
         name: ca
         namespace: cert-manager
-      - template: edns-1-0-0
+      - template: edns-1-0-2
         name: edns
         namespace: kube-system
-      - template: gateway-1-0-0
+      - template: gateway-1-0-2
         name: gateway
         namespace: kube-system

@@ -16,7 +16,7 @@ metadata:
   name: crd-1-0-0-tpl
 spec:
   interval: 10m0s
-  chart: crd-service-template
+  chart: servicetemplate/crd-service-template
   version: 1.0.0
   reconcileStrategy: ChartVersion
   sourceRef:

@@ -5,4 +5,4 @@ metadata:
   name: vsphere-standalone-cp
 spec:
   supportedTemplates:
-    - name: vsphere-standalone-cp-1-0-0
+    - name: vsphere-standalone-cp-1-0-9

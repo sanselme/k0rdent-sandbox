@@ -5,4 +5,4 @@ metadata:
   name: adopted-cluster
 spec:
   supportedTemplates:
-    - name: adopted-cluster-1-0-0
+    - name: adopted-cluster-1-0-1

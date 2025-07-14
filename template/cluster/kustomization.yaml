@@ -8,6 +8,6 @@ generatorOptions:
 resources:
   - adopted
   - docker
-  - openstack
   - remote
-  - vsphere
+  # - openstack
+  # - vsphere
