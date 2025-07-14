@@ -1,6 +1,6 @@
 # K0rdent Demo
 
-This repository demonstrates how to set up a Kubernetes cluster using `kind`, install Cilium, deploy KCM (Kubernetes Cluster Manager), and manage workloads.
+This repository demonstrates how to set up a Kubernetes cluster using `kind`, deploy KCM (Kubernetes Cluster Manager), and manage workloads.
 
 ## Table of Contents
 
@@ -9,11 +9,10 @@ This repository demonstrates how to set up a Kubernetes cluster using `kind`, in
 - [Setup Instructions](#setup-instructions)
   - [1. Generate Kind Config File](#1-generate-kind-config-file)
   - [2. Create Management Cluster](#2-create-management-cluster)
-  - [3. Remove Default StorageClass](#3-remove-default-storageclass)
-  - [4. Install Cilium](#4-install-cilium)
-  - [5. Install KCM](#5-install-kcm)
-  - [6. Deploy Management Workload](#6-deploy-management-workload)
-  - [7. Create Workload Cluster](#7-create-workload-cluster)
+  - [3. Install KCM](#3-install-kcm)
+  - [4. Deploy Management Workload](#4-deploy-management-workload)
+  - [5. Create Workload Cluster](#5-create-workload-cluster)
+- [Cleanup](#cleanup)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -32,7 +31,6 @@ Before starting, ensure you have the following installed on your system:
 - [Kind](https://kind.sigs.k8s.io/)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Helm](https://helm.sh/)
-- [Cilium CLI](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/)
 
 ---
 
@@ -52,25 +50,26 @@ name: kind
 networking:
   apiServerAddress: 127.0.0.1
   apiServerPort: 6443
-  disableDefaultCNI: true
-  ipFamily: ipv4
 featureGates:
   UserNamespacesSupport: true
 nodes:
   - role: control-plane
     extraMounts:
-      - hostPath: /var/run/docker.sock
+      - # We are mounting the Docker socket to allow KCM to manage containers
+        # on the host system (for DockerCluster).
+        hostPath: /var/run/docker.sock
         containerPath: /var/run/docker.sock
     extraPortMappings:
-      - containerPort: 80
-        hostPort: 80
-        protocol: TCP
-        listenAddress: 0.0.0.0
-      - containerPort: 443
-        hostPort: 443
-        protocol: TCP
-        listenAddress: 0.0.0.0
-      - containerPort: 30443
+      # - containerPort: 80
+      #   hostPort: 80
+      #   protocol: TCP
+      #   listenAddress: 0.0.0.0
+      # - containerPort: 443
+      #   hostPort: 443
+      #   protocol: TCP
+      #   listenAddress: 0.0.0.0
+      - # Port for KCM management
+        containerPort: 30443
         hostPort: 30443
         protocol: TCP
         listenAddress: 0.0.0.0
@@ -88,45 +87,44 @@ kind create cluster \
   --name k0rdent-management-local
 ```
 
-### 3. Remove Default StorageClass
-
-If a default StorageClass exists, remove it:
-
-```shell
-if kubectl get sc standard >/dev/null 2>&1; then
-  kubectl delete deployment local-path-provisioner --namespace local-path-storage
-  kubectl delete namespace local-path-storage
-  kubectl delete sc standard
-fi
-```
-
-### 4. Install Cilium
-
-Install Cilium as the CNI (Container Network Interface):
-
-```shell
-cilium status >/dev/null 2>&1 || cilium install --helm-release-name cni --wait
-```
-
-### 5. Install KCM
+### 3. Install KCM
 
 Deploy KCM using Helm:
 
 ```shell
-helm upgrade kcm oci://ghcr.io/k0rdent/kcm/charts/kcm \
+kcm_templates_url=oci://ghcr.io/k0rdent/kcm/charts
+kcm_version=1.1.1
+
+# generate helm chart values file
+stat /tmp/values.yaml >/dev/null 2>&1 ||
+cat <<EOF >/tmp/values.yaml
+---
+replicas: 1
+controller:
+  createAccessManagement: false # requires management
+  createManagement: false       # we're deploying management separately
+  createTemplates: false
+  enableTelemetry: false
+  templatesRepoURL: $kcm_templates_url
+image:
+  repository: ghcr.io/k0rdent/kcm/controller
+  tag: $kcm_version
+EOF
+
+# deploy helm chart
+helm upgrade kcm $kcm_templates_url/kcm \
   --atomic \
   --create-namespace \
   --install \
   --namespace kcm-system \
-  --set controller.management=false \
-  --set 'flux2.kustomizeController.container.additionalArgs[0]=--watch-label-selector=k0rdent.mirantis.com/managed=true' \
-  --set flux2.kustomizeController.create=true \
+  --values /tmp/values.yaml \
+  --version $kcm_version \
   --wait
-```
 
-Wait for KCM to be ready:
+# install kcm management resources
+kustomize build ./kcm | kubectl apply -f -
 
-```shell
+# wait for KCM to be ready
 kubectl wait \
   --for condition=Ready \
   --namespace kcm-system \
@@ -134,7 +132,7 @@ kubectl wait \
   Management/kcm
 ```
 
-### 6. Deploy Management Workload
+### 4. Deploy Management Workload
 
 Deploy your management workload using `kustomize`:
 
@@ -155,11 +153,9 @@ if [ $i -gt $max_retries ]; then
   echo "Command failed after $max_retries attempts."
   exit 1
 fi
-
-kustomize build ./kcm | kubectl apply -f -
 ```
 
-### 7. Create Workload Cluster
+### 5. Create Workload Cluster
 
 Create a workload cluster:
 
@@ -183,12 +179,21 @@ kubectl get secret dev-docker-kubeconfig -o jsonpath='{.data.value}' | base64 --
 echo "Exported kubeconfig to hack/kubeconfig.yaml"
 ```
 
+## Cleanup
+
+To clean up the management cluster and resources, run:
+
+```shell
+kubectl delete -f <(kustomize build ./cluster) || true
+kind delete cluster --name k0rdent-management-local
+rm -f /tmp/kind.yaml /tmp/values.yaml hack/kubeconfig.yaml
+```
+
 ---
 
 ## Troubleshooting
 
 - **Cluster Creation Issues**: Ensure Docker is running and `kind` is installed correctly.
-- **Cilium Installation Errors**: Verify that the Cilium CLI is installed and accessible in your PATH.
 - **KCM Deployment Issues**: Check Helm logs for errors during the KCM installation.
 
 ---

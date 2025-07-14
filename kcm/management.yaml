@@ -5,8 +5,9 @@ metadata:
   name: kcm
   labels:
     k0rdent.mirantis.com/component: kcm
+    k0rdent.mirantis.com/managed: 'true'
 spec:
-  release: kcm-1-0-0
+  release: kcm-1-1-1
   providers:
     - name: cluster-api-provider-docker
     - name: cluster-api-provider-k0sproject-k0smotron
@@ -18,37 +19,33 @@ spec:
     # - name: cluster-api-provider-ipam
     # - name: cluster-api-provider-openstack
     # - name: cluster-api-provider-vsphere
-  # core:
-  #   capi: {}
-  #   kcm:
-  #     config:
-  #       cert-manager:
-  #         config:
-  #           apiVersion: controller.config.cert-manager.io/v1alpha1
-  #           enableGatewayAPI: true
-  #           kind: ControllerConfiguration
-  #         crds:
-  #           enabled: true
-  #           keep: false
-  #         enableCertificateOwnerRef: true
-  #       controller:
-  #         enableTelemetry: false
-  #       flux2:
-  #         helmController:
-  #           container:
-  #             additionalArgs:
-  #               - '--watch-label-selector=k0rdent.mirantis.com/managed=true'
-  #           create: true
-  #         kustomizeController:
-  #           container:
-  #             additionalArgs:
-  #               - '--watch-label-selector=k0rdent.mirantis.com/managed=true'
-  #           create: true
-  #         sourceController:
-  #           container:
-  #             additionalArgs:
-  #               - '--watch-label-selector=k0rdent.mirantis.com/managed=true'
-  #           create: true
-  #           persistence:
-  #             enabled: true
-  #       replicas: 1
+  core:
+    capi: {}
+    kcm:
+      config:
+        replicas: 1
+        controller:
+          createAccessManagement: false # requires management
+          createManagement: false       # we're deploying management separately
+          createRelease: false          # we're deploying release separately
+          createTemplates: false
+          enableTelemetry: false
+          templatesRepoURL: oci://ghcr.io/k0rdent/kcm/charts
+        image:
+          repository: ghcr.io/k0rdent/kcm/controller
+          tag: 1.1.1
+        cert-manager:
+          enableCertificateOwnerRef: true
+          # config:
+          #   apiVersion: controller.config.cert-manager.io/v1alpha1
+          #   kind: ControllerConfiguration
+          #   enableGatewayAPI: true
+        flux2:
+          # kustomizeController:
+          #   create: true
+          #   container:
+          #     additionalArgs:
+          #       - --watch-label-selector=k0rdent.mirantis.com/managed=true
+          sourceController:
+            persistence:
+              enabled: true

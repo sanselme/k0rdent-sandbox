@@ -8,8 +8,6 @@ generatorOptions:
 commonLabels:
   k0rdent.mirantis.com/managed: "true"
 resources:
-  - cni.yaml
-  - csi.yaml
-  - kcm.yaml
-  - management.yaml
   - accessmanagement.yaml
+  - management.yaml
+  - release.yaml
