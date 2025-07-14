@@ -50,19 +50,19 @@ spec:
           #               - NET_ADMIN
           #               - NET_BIND_SERVICE
           #               - SYS_ADMIN
-          # - name: csi
-          #   chartname: oci://registry-1.docker.io/labsonline/charts/csi
-          #   namespace: kube-system
-          #   version: 1.0.0
-          #   values: |
-          #     openebs:
-          #       csi:
-          #         volumeSnapshots:
-          #           enabled: true
-          #           keep: false
-          #       localpv-provisioner:
-          #         hostpathClass:
-          #           name: general
+          - name: csi
+            chartname: oci://registry-1.docker.io/labsonline/charts/csi
+            namespace: kube-system
+            version: 1.0.0
+            values: |
+              openebs:
+                csi:
+                  volumeSnapshots:
+                    enabled: true
+                    keep: false
+                localpv-provisioner:
+                  hostpathClass:
+                    name: general
           - name: envoy
             chartname: ghcr.io/labsonline/charts/envoy:1.0.0
             namespace: kube-system
