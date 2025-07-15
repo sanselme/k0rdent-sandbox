@@ -23,7 +23,7 @@ spec:
       helm:
         charts:
           # - name: cni
-          #   chartname: oci://registry-1.docker.io/labsonline/charts/cni
+          #   chartname: oci://ghcr.io/labsonline/charts/cni
           #   namespace: kube-system
           #   version: 1.0.0
           #   values: |
@@ -51,7 +51,7 @@ spec:
           #               - NET_BIND_SERVICE
           #               - SYS_ADMIN
           - name: csi
-            chartname: oci://registry-1.docker.io/labsonline/charts/csi
+            chartname: oci://ghcr.io/labsonline/charts/csi
             namespace: kube-system
             version: 1.0.0
             values: |
@@ -64,9 +64,9 @@ spec:
                   hostpathClass:
                     name: general
           - name: envoy
-            chartname: ghcr.io/labsonline/charts/envoy:1.0.0
+            chartname: ghcr.io/labsonline/charts/envoy
             namespace: kube-system
-            version: 1.4.2
+            version: 1.0.0
   serviceSpec:
     services: []
     # - template: knative-1-0-0

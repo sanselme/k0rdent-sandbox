@@ -30,18 +30,13 @@ The `.devcontainer` directory provides a ready-to-use development environment us
 ## Setup Instructions
 
 1. Open this repository in VS Code.
-2. When prompted, reopen in the devcontainer, or use the command palette: `Dev Containers: Reopen in Container`.
-3. Once inside the container, configure the environment:
-
-   ```shell
-   ssh devcontainer@127.0.0.1 -p 10022 /opt/mount.sh
-   ```
-
-4. You can now use the container for K0rdent development and testing.
+2. You can now use the container for K0rdent development and testing.
 
     ```shell
-    k0sctl apply --config ./hack/cluster.yaml
-    k0sctl kubeconfig --config ./hack/cluster.yaml >./hack/kubeconfig.yaml
+    k0sctl kubeconfig \
+        --address https://127.0.0.1:6443 \
+        --config ./hack/cluster.yaml \
+        >./hack/kubeconfig.yaml
     ```
 
 See [README](../README.md#6-deploy-management-workload) for to continue with deployment.
@@ -53,8 +48,6 @@ See [README](../README.md#6-deploy-management-workload) for to continue with dep
 - `Dockerfile`: Builds the devcontainer image with all required tools.
 - `devcontainer.json`: Main configuration for the devcontainer, referencing `compose-dev.yaml`.
 - `compose-dev.yaml`: Docker Compose file defining the `kcm` service, mounting the workspace, setting up volumes (including CRDs and SSH keys), and exposing ports (10022, 30443, 443, 6443, 80).
-- `authorized_keys`: SSH public key for accessing the devcontainer.
-- `crds/`: Contains Kubernetes CustomResourceDefinitions (CRDs) such as `es.yaml` and `gapi.yaml` for use within the devcontainer environment.
 
 ---
 

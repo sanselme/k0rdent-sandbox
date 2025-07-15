@@ -1,8 +1,48 @@
 {
-  "name": "Workspace",
-  "dockerComposeFile": ["${localWorkspaceFolder}/.devcontainer/compose-dev.yaml"],
+  "name": "DevBox",
   "service": "kcm",
-  "workspaceFolder": "/home/devcontainer/workspace",
-  // "postCreateCommand": "${containerWorkspaceFolder}/scripts/configure.sh",
-  "remoteUser": "devcontainer"
+  "workspaceFolder": "/home/ubuntu/workspace",
+  "remoteUser": "ubuntu",
+  "dockerComposeFile": [
+    "${localWorkspaceFolder}/.devcontainer/compose-dev.yaml"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "aaron-bond.better-comments",
+        "bierner.github-markdown-preview",
+        "bierner.markdown-checkbox",
+        "bierner.markdown-emoji",
+        "bierner.markdown-footnotes",
+        "bierner.markdown-mermaid",
+        "bierner.markdown-preview-github-styles",
+        "bierner.markdown-yaml-preamble",
+        "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+        "christian-kohler.path-intellisense",
+        "codezombiech.gitignore",
+        "DavidAnson.vscode-markdownlint",
+        "eamodio.gitlens",
+        "EditorConfig.EditorConfig",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot-chat",
+        "GitHub.copilot",
+        "github.vscode-github-actions",
+        "GitHub.vscode-pull-request-github",
+        "jerrygoyal.shortcut-menu-bar",
+        "minherz.copyright-inserter",
+        "ms-azuretools.vscode-containers",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "openai.chatgpt",
+        "patbenatar.advanced-new-file",
+        "redhat.vscode-yaml",
+        "tariky.easy-snippet-maker",
+        "tomoyukim.vscode-mermaid-editor",
+        "trunk.io",
+        "vscode-icons-team.vscode-icons",
+        "wayou.vscode-todo-highlight",
+        "wdhongtw.gpg-indicator"
+      ]
+    }
+  }
 }
