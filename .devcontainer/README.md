@@ -39,7 +39,7 @@ The `.devcontainer` directory provides a ready-to-use development environment us
         >./hack/kubeconfig.yaml
     ```
 
-See [README](../README.md#6-deploy-management-workload) for to continue with deployment.
+See [README](../README.md#3-install-kcm) for to continue with deployment.
 
 ---
 
