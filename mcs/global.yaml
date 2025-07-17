@@ -31,9 +31,28 @@ spec:
       - template: ca-1-0-2
         name: ca
         namespace: cert-manager
+        values: |
+          cert-manager:
+            enabled: true
+            enableCertificateOwnerRef: true
+            crds:
+              enabled: true
+            config:
+              apiVersion: controller.config.cert-manager.io/v1alpha1
+              kind: ControllerConfiguration
+              enableGatewayAPI: true
       - template: edns-1-0-2
         name: edns
         namespace: kube-system
+        values: |
+          endpoints: []
+          # - name: examplearecord
+          #   records:
+          #     - name: example.com
+          #       targets:
+          #         - 10.0.0.1
+          external-dns:
+            enabled: true
       - template: gateway-1-0-2
         name: gateway
         namespace: kube-system

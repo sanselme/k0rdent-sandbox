@@ -143,6 +143,16 @@ fi
 
 ### 5. Create Workload Cluster
 
+Update `cluster/kustomization.yaml` to include the desired cluster by uncommenting the relevant lines. For example:
+
+```yaml
+resources:
+  - dev-docker.yaml
+  # - dev-openstack.yaml
+  # - dev-remote.yaml
+  # - dev-vsphere.yaml
+```
+
 Create a workload cluster:
 
 ```shell
