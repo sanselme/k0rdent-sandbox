@@ -14,6 +14,7 @@ spec:
           - default
     - clusterTemplateChains:
         - adopted-cluster
+        - aws-standalone-cp
         - docker-hosted-cp
         - remote-cluster
       targetNamespaces:
@@ -21,6 +22,7 @@ spec:
           - default
     - credentials:
         - adopted-cluster-cred
+        - aws-cluster-cred
         - docker-cluster-cred
         - remote-cluster-cred
       targetNamespaces:

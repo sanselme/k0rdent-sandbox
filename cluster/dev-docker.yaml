@@ -11,6 +11,9 @@ spec:
   propagateCredentials: false
   config:
     clusterLabels: {}
+    k0smotron:
+      service:
+        type: NodePort
     # TODO: modify docker-hosted-cp to allow configuring k0s
     # k0s:
     #   api:

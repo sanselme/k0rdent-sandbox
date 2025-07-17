@@ -5,6 +5,7 @@ buildMetadata:
 generatorOptions:
   disableNameSuffixHash: true
 resources: []
+# - dev-aws.yaml
 # - dev-docker.yaml
 # - dev-openstack.yaml
 # - dev-remote.yaml
