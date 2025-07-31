@@ -92,20 +92,67 @@ kind create cluster \
 Deploy KCM using Helm:
 
 ```shell
-kcm_templates_url=oci://ghcr.io/k0rdent/kcm/charts
-kcm_version=1.1.1
+kcm_templates_url=oci://ghcr.io/labsonline/charts/kcm
+kcm_version=1.2.0
 
-# deploy helm chart
+# install crds
+kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' | kubectl apply -f -
+kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' | kubectl apply -f -
+
+# deploy kcm
+cat <<eof >/tmp/values.kcm.yaml
+kcm:
+  cert-manager:
+    config:
+      apiVersion: controller.config.cert-manager.io/v1alpha1
+      kind: ControllerConfiguration
+      enableGatewayAPI: true
+eof
+
 helm upgrade kcm $kcm_templates_url/kcm \
-  --atomic \
-  --create-namespace \
-  --install \
+  --install --atomic --create-namespace \
   --namespace kcm-system \
+  --values /tmp/values.kcm.yaml \
   --version $kcm_version \
   --wait
 
-# install kcm management resources
-kustomize build ./kcm | kubectl apply -f -
+# deploy kcm resource
+cat <<eof >/tmp/values.kcm.yaml
+management:
+  enabled: true
+  access:
+    enabled: true
+    rules:
+      - clusterTemplateChains:
+          - adopted-cluster
+          - docker-hosted-cp
+          - remote-cluster
+        targetNamespaces:
+          list:
+            - default
+  providers:
+    - name: cluster-api-provider-docker
+    - name: cluster-api-provider-k0sproject-k0smotron
+    - name: projectsveltos
+release:
+  enabled: true
+  providers:
+    - name: cluster-api-provider-k0sproject-k0smotron
+      template: cluster-api-provider-k0sproject-k0smotron-1-0-6
+    - name: cluster-api-provider-docker
+      template: cluster-api-provider-docker-1-0-2
+    - name: projectsveltos
+      template: projectsveltos-0-57-2
+kcm:
+  install: false
+eof
+
+helm upgrade kcm-resource $kcm_templates_url/kcm \
+  --install --atomic --create-namespace \
+  --namespace kcm-system \
+  --values /tmp/values.kcm.yaml \
+  --version $kcm_version \
+  --wait
 
 # wait for KCM to be ready
 kubectl wait \

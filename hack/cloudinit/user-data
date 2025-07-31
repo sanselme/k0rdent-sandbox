@@ -1,6 +1,6 @@
 #cloud-config
-fqdn: kcm.dev.local
-hostname: kcm
+fqdn: devbox.dev.local
+hostname: devbox
 manage_etc_hosts: true
 package_update: true
 package_upgrade: true
@@ -11,7 +11,7 @@ growpart:
   devices: [/]
 users:
   - default
-  - name: devcontainer
+  - name: admin
     groups: sudo,docker
     sudo: ALL=(ALL) NOPASSWD:ALL
     ssh_authorized_keys:
@@ -56,7 +56,7 @@ write_files:
         Welcome to DevBox 🚀
       ===========================================
 
-      Hostname: kcm (K0rdent Sandbox)
+      Hostname: $(hostname)
       Purpose:  FRR for Cilium BGP, WireGuard VPN, Bind9 DNS, and more.
 
       Useful Info:
@@ -67,6 +67,56 @@ write_files:
 
       Enjoy hacking in your sandbox!
       ===========================================
+  - path: /etc/k0s/containerd.d/systemd.toml
+    permissions: "0644"
+    owner: root
+    content: |
+      [plugins]
+        [plugins."io.containerd.grpc.v1.cri"]
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+                  SystemdCgroup = true
+  - path: /etc/bind/named.conf.devbox-zones
+    permissions: "0644"
+    owner: bind
+    content: |
+      include "/etc/bind/devbox.key";
+
+      zone "dev.local" IN {
+        type primary;
+        file "/var/cache/bind/db.devbox";
+
+        allow-transfer {
+          key "externaldns";
+        };
+
+        update-policy {
+          grant externaldns zonesub ANY;
+        };
+      };
+  - path: /etc/bind/devbox.key
+    permissions: "0644"
+    owner: bind
+    content: |
+      key "externaldns" {
+        algorithm hmac-sha256;
+        secret "e9Y40wFrHQVIBtjy5auUdf2HcIROeWy0X46WqAvhBm4=";
+      };
+  - path: /opt/db.devbox.tmpl
+    permissions: "0644"
+    owner: bind
+    content: |
+      $TTL    604800
+      @       IN      SOA     ns.dev.local. admin.dev.local. (
+                                    2         ; Serial
+                              604800         ; Refresh
+                                86400         ; Retry
+                              2419200         ; Expire
+                              604800 )       ; Negative Cache TTL
+      ;
+      @       IN      NS      ns.dev.local.
+      ns      IN      A       ${server_ip}
   - path: /opt/frr.conf.tmpl
     permissions: "0644"
     owner: root
@@ -112,36 +162,55 @@ write_files:
     permissions: "0644"
     owner: root
     content: |
+      # /etc/wireguard/wg0.conf
       [Interface]
-      PrivateKey = ${privkey}
       Address = ${ipv4_addr}, ${ipv6_addr}
-      ListenAddress = ${server_ip}
       ListenPort = ${wg_port}
-      SaveConfig = true
-      PostUp = ufw route allow in on wg0 out on ${netdev}
-      PostUp = iptables -t nat -I POSTROUTING -o ${netdev} -j MASQUERADE
-      PostUp = ip6tables -t nat -I POSTROUTING -o ${netdev} -j MASQUERADE
-      PreDown = ufw route delete allow in on wg0 out on ${netdev}
-      PreDown = iptables -t nat -D POSTROUTING -o ${netdev} -j MASQUERADE
-      PreDown = ip6tables -t nat -D POSTROUTING -o ${netdev} -j MASQUERADE
+      PrivateKey = ${privkey}
+
+      PostUp = iptables -I INPUT -i wg0 -j ACCEPT
+      PostUp = iptables -I FORWARD -i wg0 -j ACCEPT
+      PostUp = iptables -I FORWARD -o wg0 -j ACCEPT
+
+      PostUp = iptables -t nat -I POSTROUTING -s ${ipv4_addr} -o ${netdev} -j MASQUERADE
+      PostUp = iptables -I INPUT -i ${netdev} -p udp --dport 51820 -j ACCEPT
+
+      PostUp = ip6tables -I INPUT -i wg0 -j ACCEPT
+      PostUp = ip6tables -I FORWARD -i wg0 -j ACCEPT
+      PostUp = ip6tables -I FORWARD -o wg0 -j ACCEPT
+
+      PostUp = ip6tables -I INPUT -i ${netdev} -p udp --dport 51820 -j ACCEPT
+
+      PreDown = iptables -D INPUT -i wg0 -j ACCEPT
+      PreDown = iptables -D FORWARD -i wg0 -j ACCEPT
+      PreDown = iptables -D FORWARD -o wg0 -j ACCEPT
+
+      PreDown = iptables -t nat -D POSTROUTING -s ${ipv4_addr} -o ${netdev} -j MASQUERADE
+      PreDown = iptables -D INPUT -i ${netdev} -p udp --dport 51820 -j ACCEPT
+
+      PreDown = ip6tables -D INPUT -i wg0 -j ACCEPT
+      PreDown = ip6tables -D FORWARD -i wg0 -j ACCEPT
+      PreDown = ip6tables -D FORWARD -o wg0 -j ACCEPT
+
+      PreDown = ip6tables -D INPUT -i ${netdev} -p udp --dport 51820 -j ACCEPT
 
       [Peer]
+      AllowedIPs = ${IP4_RANGE}, ${IP6_RANGE}
       PublicKey = ${pubkey}
-      AllowedIPs = ${IP4_RANGE}, ${IP6_RANGE}, ${vip4_addr}
-      Endpoint = ${server_ip}:${wg_port}
   - path: /opt/wg0.client.tmpl
     permissions: "0644"
     owner: root
     content: |
+      # /etc/wireguard/client.conf
       [Interface]
-      PrivateKey = ${privkey}
       Address = ${ipv4_addr}, ${ipv6_addr}
       DNS = ${dns_servers}
+      PrivateKey = ${privkey}
 
       [Peer]
-      PublicKey = ${pubkey}
-      AllowedIPs = ${allowed_ips}
+      AllowedIPs = ${ipv4_addr}, ${ipv6_addr}, ${allowed_ips}
       Endpoint = ${server_ip}:${wg_port}
+      PublicKey = ${pubkey}
   - path: /opt/bootstrap.sh
     permissions: "0755"
     owner: root
@@ -193,7 +262,15 @@ write_files:
       sudo ufw status
 
       # MARK: - bind
-      # TODO: bind
+
+      # configure bind9
+      echo 'include "/etc/bind/named.conf.devbox-zones";' | sudo tee -a /etc/bind/named.conf
+      envsubst < /opt/db.devbox.tmpl | sudo tee /var/cache/bind/db.devbox >/dev/null
+      sudo systemctl restart named.service
+
+      # check bind configuration
+      sudo named-checkzone dev.local /var/cache/bind/db.devbox
+      sudo rndc zonestatus dev.local
 
       # MARK: - frr
 

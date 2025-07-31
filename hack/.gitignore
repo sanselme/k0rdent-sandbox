@@ -6,12 +6,9 @@
 
 !aws/*
 !cloudinit/*
-!wireguard/*
+!manifests/*
 !bootstrap.sh
 !cluster.yaml
-!configure.sh
-!containerd.toml
-!frr.conf.tmpl
 
 !README.md
 

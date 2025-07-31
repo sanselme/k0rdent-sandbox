@@ -35,36 +35,46 @@ The `hack` directory provides tools and manifests for VM-based cluster setup, CR
 Use `./hack/cloudinit.yaml` to create a VM. Install Docker in the VM to enable `DockerCluster` creation.
 
 ```shell
-# Linux
+# Create the VM with cloud-init
+virt-install \
+  --name devbox \
+  --os-variant ubuntujammy \
+  --ram 8192 \
+  --vcpus 2 \
+  --disk path=/var/lib/libvirt/images/devbox.qcow2,size=120 \
+  --network bridge=virbr0,model=virtio \
+  --console pty,target_type=serial \
+  --cloud-init user-data=./hack/cloudinit.yaml \
+  --cloud-init meta-data=./hack/cloudinit-meta.yaml \
+  --cloud-init network-config=./hack/cloudinit-network.yaml \
+  --graphics none \
+  --import
+
+# Generate cloud-init iso (Linux)
 apt install genisoimage
 genisoimage -joliet -rock -output ./seed.iso -volid cidata ./user-data ./meta-data ./network-config 
 
-# macOS
+# Generate cloud-init iso (macOS)
 brew install cdrtools
 mkisofs -joliet -rock -output ./seed.iso -volid cidata ./user-data ./meta-data ./network-config 
 ```
 
-### 2. Generate and Upload CRDs
-
-Generate CRDs and upload them to the VM at `/var/lib/k0s/manifests/crds/`:
-
-  ```shell
-  kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' >/var/lib/k0s/manifests/crds/gapi.yaml
-  kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' >/var/lib/k0s/manifests/crds/es.yaml
-  ```
-
-### 3. Configure KCM
-
-Upload `./hack/containerd.toml` to `/etc/k0s/containerd.d/systemd.toml` on the VM.
+### 2. Configure KCM
 
 Apply the cluster configuration and retrieve the kubeconfig:
 
   ```shell
+  # generate crds
+  mkdir -p hack/crds
+  kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' > hack/crds/gateway-api-crds.yaml
+  kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' > hack/crds/snapshotter-crds.yaml
+
+  # create cluster
   k0sctl apply --config ./hack/cluster.yaml
   k0sctl kubeconfig --config ./hack/cluster.yaml > ./hack/kubeconfig.yaml
   ```
 
-See [README](../README.md#6-deploy-management-workload) for to continue with deployment.
+See [README](../README.md#4-deploy-management-workload) for to continue with deployment.
 
 ---
 
